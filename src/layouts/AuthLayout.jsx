@@ -2,14 +2,20 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
 import { useLoaderData } from "react-router";
 import { useNavigate } from "react-router";
-import { Alarm, Twitter, Home } from '@boxicons/react';
+import { Alarm, ChartGantt, Buildings, Wallet, Checklist, User } from '@boxIcons/react';
 import SideNav from "../components/SideNav";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleMenuState, updateMenuState } from "../store/store";
 
 export default function AuthLayout(){
 
     const { isLogin } = useLoaderData();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const appState = useSelector(state => state);
+
+    const dispatch = useDispatch();
 
     // useEffect(()=>{
     //     if(!isLogin){
@@ -19,94 +25,44 @@ export default function AuthLayout(){
 
     const links = [
         {
-            icon: <Alarm />,
+            Icon: ChartGantt,
             title: "Dashboard",
-            link: "/test"
+            link: "/home"
         },
         {
-            icon: <Alarm />,
+            Icon: Buildings,
             title: "Properties",
-            link: "/test"
+            link: "/home/properties"
         },
         {
-            icon: <Alarm />,
+            Icon: Wallet,
             title: "Expenses",
-            link: "/test"
+            link: "/home/expenses"
         }, 
         {
-            icon: <Alarm />,
+            Icon: Checklist,
             title: "Job Order",
-            link: "/test"
+            link: "/home/job-orders"
         },
         {
-            icon: <Alarm />,
+            Icon: User,
             title: "Staff",
-            link: "/test"
+            link: "/home/staffs"
         },
-        // test
-         {
-            icon: <Alarm />,
-            title: "Dashboard",
-            link: "/test"
-        },
-        {
-            icon: <Alarm />,
-            title: "Properties",
-            link: "/test"
-        },
-        {
-            icon: <Alarm />,
-            title: "Expenses",
-            link: "/test"
-        }, 
-        {
-            icon: <Alarm />,
-            title: "Job Order",
-            link: "/test"
-        },
-        {
-            icon: <Alarm />,
-            title: "Staff",
-            link: "/test"
-        },
-        // test
-         {
-            icon: <Alarm />,
-            title: "Dashboard",
-            link: "/test"
-        },
-        {
-            icon: <Alarm />,
-            title: "Properties",
-            link: "/test"
-        },
-        {
-            icon: <Alarm />,
-            title: "Expenses",
-            link: "/test"
-        }, 
-        {
-            icon: <Alarm />,
-            title: "Job Order",
-            link: "/test"
-        },
-        {
-            icon: <Alarm />,
-            title: "Staff",
-            link: "/test"
-        }
     ];
 
     return <>
-    
-    <div className="grid grid-cols-[200px_1fr] min-h-screen">
-        <aside className="bg-gray-500 px-3 py-5 max-h-screen">
-            <h1 className="mb-2 text-center">Property Management</h1>
+        <div className="grid grid-cols-[auto_1fr]">
             <SideNav links={links}/>
-        </aside>
-        <main className="px-3 py-5 bg-orange-500">
-            <Outlet/>
-        </main>
-    </div>
+            <main className="min-h-screen">
+                <section className="bg-white px-2 h-[10%]">
+                    <button onClick={()=> dispatch(toggleMenuState())}>burger</button>
+                    {appState.page.title}
+                </section>
+                <section className="p-2 min-h-[90%] bg-gray-50">
+                    <Outlet/>
+                </section>
+            </main>
+        </div>
     </>
 }

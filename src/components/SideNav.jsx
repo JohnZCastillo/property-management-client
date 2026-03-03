@@ -1,34 +1,45 @@
-import { Alarm, Twitter, Home } from '@boxicons/react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router';
+import { changePage } from '../store/store';
     
+function LinkButton({Icon, title, link, onClick, iconOnly }){
 
-function LinkButton({icon, title, link, onClick, showIcon }){
+    const location = useLocation();
+
+    const isActive = location.pathname == link;
+
     return (
         <button 
-            onClick={()=> onClick(link)} 
-            className="cursor-pointer bg-indigo-500 px-3 py-2 rounded flex gap-1 items-center text-white font-bold" 
+            onClick={()=> onClick({link, title})} 
+            className={`cursor-pointer px-3 py-2 flex gap-1 items-center text-sm ${isActive ? 'nav-active' : ''}`} 
             type="button"
         >
-            {showIcon && icon}
-            {title}
+            {Icon && <Icon /> }
+
+            {!iconOnly && title}
         </button>
     )
 }
 
 export default function SideNav({links}){
 
-    const  [isIconShowing, setIsIconShowing] = useState(true);
+    const dispatch = useDispatch();
+
+    const appState = useSelector(state => state);
 
     const navigate = useNavigate();
 
-    const handleOnNavigate = (link)=>{
+    const handleOnNavigate = ({link, title})=>{
+        dispatch(changePage({link,title}));
         navigate(link)
     }
 
     return (
-         <nav className="flex flex-col gap-2 overflow-auto">
-            {links.map(link => <LinkButton {...link}  showIcon={isIconShowing} onClick={handleOnNavigate}/>)}
-        </nav>
+        <aside className={`${appState.isMenuShowing ? 'min-w-[200px]' : 'min-w-[70px]'} bg-white border border-r border-gray-300 px-3 py-5 h-screen overflow-auto`}>
+            <nav className="flex flex-col overflow-auto custom-scrollbar">
+                {links.map(link => <LinkButton {...link}  iconOnly={!appState.isMenuShowing} onClick={handleOnNavigate}/>)}
+            </nav>
+        </aside>
     )
 }
