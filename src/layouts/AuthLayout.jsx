@@ -1,10 +1,12 @@
 import { Outlet, useLocation } from "react-router";
 import { useLoaderData } from "react-router";
 import { useNavigate } from "react-router";
-import {  ChartGantt, Buildings, Wallet, Checklist, User } from '@boxicons/react';
+import { Menu, ChartGantt, Buildings, Wallet, Checklist, User } from '@boxicons/react';
 import SideNav from "../components/SideNav";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMenuState, updateMenuState } from "../store/store";
+import normalizePath from "../utils/normalizePath";
+import Button from "../components/Button";
 
 export default function AuthLayout(){
 
@@ -54,9 +56,27 @@ export default function AuthLayout(){
         <div className="grid grid-cols-[auto_1fr]">
             <SideNav links={links}/>
             <main className="min-h-screen">
-                <section className="bg-white px-2 h-[10%]">
-                    <button onClick={()=> dispatch(toggleMenuState())}>burger</button>
-                    {appState.page.title}
+                <section className="bg-white px-5 h-[10%] flex items-center gap-3">
+
+                    <Menu className="cursor-pointer hover:text-indigo-500" onClick={()=> dispatch(toggleMenuState())}/>
+
+                    <div className="flex gap-1 items-center">
+                        {normalizePath(location.pathname).map((path, index, array) => (
+                            <>
+                                <button 
+                                    className="cursor-pointer capitalize" 
+                                    type="button" 
+                                    onClick={()=> navigate(index === 0 ? `/${path}` : path)}
+                                > 
+                                    {path}
+                                </button>
+
+                                {array.length !== (index + 1) && (
+                                    <span>/</span>
+                                )}
+                            </>
+                        ))}
+                    </div>
                 </section>
                 <section className="p-2 min-h-[90%] bg-gray-50">
                     <Outlet/>

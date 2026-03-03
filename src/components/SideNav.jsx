@@ -2,12 +2,17 @@ import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router';
 import { changePage } from '../store/store';
-    
+import normalizePath from './../utils/normalizePath';
+
 function LinkButton({Icon, title, link, onClick, iconOnly }){
 
     const location = useLocation();
 
-    const isActive = location.pathname == link;
+
+    const [basePath, activePath] = normalizePath(location.pathname);
+    const [linkBasePath, linkActivePath] = normalizePath(link);
+
+    const isActive = activePath === linkActivePath;
 
     return (
         <button 

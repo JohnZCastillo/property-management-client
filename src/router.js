@@ -37,7 +37,13 @@ const router = createBrowserRouter([
       },
       {
         path: 'properties',
-        Component: Property
+        Component: Property,
+        children: [
+          {
+            path: ':id',
+            Component: Property,
+          }
+        ]
       },
        {
         path: 'expenses',

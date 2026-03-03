@@ -6,10 +6,13 @@ import Modal from "../../components/Modal";
 import ReactHookForm, { FieldLabel, InputField } from "../../components/ReactHookForm";
 import { propertySchema } from "../../schema/Schema";
 import modalType from "../../constant/ModalType";
+import { useNavigate } from "react-router";
 
 export default function Index(){
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+    const navigate = useNavigate();
 
     const [modalState, setModalState] = useState({
         isOpen: false,
@@ -47,12 +50,14 @@ export default function Index(){
             title="Users"
             data={[
                 {
+                    id:1,
                     name: "John",
                     firstName: "John",
                     middleName: "Zuniga",
                     lastName: "Castillo"
                 },
                 {
+                    id:2,
                     name: "James",
                     firstName: "James",
                     middleName: "Zuniga",
@@ -87,15 +92,14 @@ export default function Index(){
                 title: 'Action',
                 style: 'w-3/10 text-center',
                 mapper: ({content})=> {
+
+                    console.log('fucking content: ', content);
+                    
                     return (
                         <div className="flex items-center justify-center">
                             <div className="flex gap-2 p-1">
                                 
-                                <Button onclick={()=> setModalState({
-                                    isOpen: true,
-                                    selected: content,
-                                    type: modalType.view
-                                })} Icon={Eye}/>
+                                <Button onclick={()=> navigate(`./${content.id}`)} Icon={Eye}/>
 
                                 <Button onclick={()=> setModalState({
                                     isOpen: true,
