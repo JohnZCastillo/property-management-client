@@ -9,7 +9,6 @@ import Expenses from  './pages/expenses/Index';
 import Staff from  './pages/staff/Index';
 import JobOrder from  './pages/job-order/Index';
 
-
 const router = createBrowserRouter([
   {
     path: "/",

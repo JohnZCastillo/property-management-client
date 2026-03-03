@@ -8,9 +8,9 @@ const FieldLabelContext = createContext();
 function isFieldRequired(schema, field) {
   return (
     schema
-      .describe()
-      ?.fields[field]?.tests?.findIndex(({ name }) => name === "required") >=
-      0 || schema?.describe()?.fields[field]?.optional == false
+      ?.describe() 
+      ?.fields?.[field]?.tests?.findIndex(({ name }) => name === "required") >= 0 
+      || schema?.describe()?.fields?.[field]?.optional == false
   );
 }
 
@@ -65,8 +65,8 @@ export function InputField({
   );
 }
 
-export function FieldLabel({ label, children, className }) {
-  const [name, setName] = useState(label);
+export function FieldLabel({ fieldName, label, children, className }) {
+  const [name, setName] = useState(fieldName);
 
   const { schema } = useContext(ReactHookFormContext);
   const required = isFieldRequired(schema, name) ?? false;
@@ -83,7 +83,7 @@ export function FieldLabel({ label, children, className }) {
         }}
       >
         <fieldset className={`fieldset relative ${className}`}>
-          <legend className="fieldset-legend text-black">
+          <legend className="fieldset-legend text-black flex gap-1 mb-1">
             <span>{label}</span>
             {required && <span className="text-red-500">*</span>}
           </legend>
@@ -180,6 +180,7 @@ export default function ReactHookForm({
   schema,
   defaultValues,
   className,
+  shouldClear
 }) {
   const {
     register,
@@ -194,6 +195,18 @@ export default function ReactHookForm({
   const handleOnSubmit = (formData) => {
     onSubmit(formData, reset);
   };
+
+    console.log(defaultValues);
+
+  useEffect(()=>{
+      reset(defaultValues);
+  },[defaultValues] )
+
+  useEffect(() => {
+    if (shouldClear) {
+      reset();
+    }
+  }, [reset, shouldClear]);
 
   return (
     <form onSubmit={handleSubmit(handleOnSubmit)} className={className}>

@@ -4,10 +4,10 @@ export default function Table({headers, data}){
     return (
         <>
             <div className="px-2 pt-2 pb-1 border border-gray-300 rounded">
-                <div className=" overflow-auto max-h-[100px] custom-scrollbar">
+                <div className="overflow-auto custom-scrollbar">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-gray-300 sticky top-0 z-2">
+                            <tr className="border-b border-gray-300 sticky top-0 z-51 bg-white">
                                 {headers.map(header => (
                                     <td className={header.style}>{header.title}</td>
                                 ))}

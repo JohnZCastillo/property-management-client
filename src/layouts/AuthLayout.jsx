@@ -1,8 +1,7 @@
-import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
 import { useLoaderData } from "react-router";
 import { useNavigate } from "react-router";
-import { Alarm, ChartGantt, Buildings, Wallet, Checklist, User } from '@boxIcons/react';
+import {  ChartGantt, Buildings, Wallet, Checklist, User } from '@boxicons/react';
 import SideNav from "../components/SideNav";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMenuState, updateMenuState } from "../store/store";
