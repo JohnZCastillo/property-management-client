@@ -196,8 +196,6 @@ export default function ReactHookForm({
     onSubmit(formData, reset);
   };
 
-    console.log(defaultValues);
-
   useEffect(()=>{
       reset(defaultValues);
   },[defaultValues] )

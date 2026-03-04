@@ -31,6 +31,14 @@ export default function Table({headers, data}){
                                 </tr>
                                 ))
                             }
+
+                            {(data && data.length <= 0) && (
+                                <tr>
+                                    <td colSpan={headers.length}>
+                                        <p className="text-center py-5 text-gray-500">Empty</p>
+                                    </td>
+                                </tr>
+                            ) }
                         </tbody>
                     </table>
                 </div>

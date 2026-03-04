@@ -5,6 +5,8 @@ import AuthLayout from "./layouts/AuthLayout";
 import Login from "./pages/Login";
 
 import Property from  './pages/property/Index';
+import Room from  './pages/property/Room';
+
 import Expenses from  './pages/expenses/Index';
 import Staff from  './pages/staff/Index';
 import JobOrder from  './pages/job-order/Index';
@@ -37,11 +39,14 @@ const router = createBrowserRouter([
       },
       {
         path: 'properties',
-        Component: Property,
         children: [
           {
-            path: ':id',
+            index: true,
             Component: Property,
+          },
+          {
+            path: ':id',
+            Component: Room,
           }
         ]
       },
