@@ -180,12 +180,15 @@ export default function ReactHookForm({
   schema,
   defaultValues,
   className,
-  shouldClear
+  shouldClear,
+  watch = [],
+  listener,
 }) {
   const {
     register,
     handleSubmit,
     reset,
+    resetField,
     formState: { errors },
   } = useForm({
     defaultValues: defaultValues,
@@ -200,8 +203,15 @@ export default function ReactHookForm({
       reset(defaultValues);
   },[defaultValues] )
 
+  useEffect(()=>{
+    if(listener){
+      listener({reset, resetField})
+    }
+  }, watch)
+
   useEffect(() => {
     if (shouldClear) {
+        console.log('called');
       reset();
     }
   }, [reset, shouldClear]);

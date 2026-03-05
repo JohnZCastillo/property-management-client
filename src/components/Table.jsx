@@ -1,5 +1,27 @@
 
+
+function getContent(target, key){
+
+    const keys = key.split('.')
+
+    let temp = target;
+
+    for(let i = 0; i < keys.length; i++){
+
+        const result = temp?.[keys[i]];
+
+        if(result == null){
+            return "--";
+        }
+
+         temp = result;
+    }
+
+    return temp;
+}
+
 export default function Table({headers, data}){
+
 
     return (
         <>
@@ -21,12 +43,12 @@ export default function Table({headers, data}){
                                         if(header.mapper){
                                             return (
                                                 <td className={`${header?.contentStyle ?? 'text-center'}`}>
-                                                    {header.mapper({content,header,index, value: content[header.key]})}
+                                                    {header.mapper({content,header,index, value: getContent(content, header.key)})}
                                                 </td>
                                             )
                                         }
 
-                                        return (<td className={`${header?.contentStyle ?? 'text-center'}`} >{content[header.key]}</td>)
+                                        return (<td className={`${header?.contentStyle ?? 'text-center'}`} >{ getContent(content, header.key)}</td>)
                                     })}
                                 </tr>
                                 ))

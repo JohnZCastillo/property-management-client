@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router";
 import { useLoaderData } from "react-router";
 import { useNavigate } from "react-router";
-import { Menu, ChartGantt, Buildings, Wallet, Checklist, User } from '@boxicons/react';
+import { Menu, ChartGantt, Buildings, Wallet, Checklist, User, Calendar } from '@boxicons/react';
 import SideNav from "../components/SideNav";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMenuState, updateMenuState } from "../store/store";
@@ -30,6 +30,11 @@ export default function AuthLayout(){
             Icon: ChartGantt,
             title: "Dashboard",
             link: "/home"
+        },
+         {
+            Icon: Calendar,
+            title: "Bookings",
+            link: "/home/bookings"
         },
         {
             Icon: Buildings,

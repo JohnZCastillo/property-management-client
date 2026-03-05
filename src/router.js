@@ -11,6 +11,8 @@ import Expenses from  './pages/expenses/Index';
 import Staff from  './pages/staff/Index';
 import JobOrder from  './pages/job-order/Index';
 
+import Booking from  './pages/booking/Index';
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -49,6 +51,10 @@ const router = createBrowserRouter([
             Component: Room,
           }
         ]
+      },
+      {
+        path: 'bookings',
+        Component: Booking
       },
        {
         path: 'expenses',
