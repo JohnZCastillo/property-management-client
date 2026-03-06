@@ -16,7 +16,8 @@ export const bookingSchema = yup.object({
   from: yup.date().required('From date is required').nullable(),
   to: yup.date().required('To date is required').nullable(),
   propertyId: yup.string().trim().required('Property is required'),
-  roomId: yup.string().trim().required('Room is required')
+  roomId: yup.string().trim().required('Room is required'),
+  status:  yup.string().trim().required('Status is required'),
 });
 
 export const deleteSchema = yup.object({

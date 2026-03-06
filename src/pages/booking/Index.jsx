@@ -6,17 +6,24 @@ import Modal from "../../components/Modal";
 import ReactHookForm, { FieldLabel, InputField, SelectionField } from "../../components/ReactHookForm";
 import { bookingSchema, deleteSchema, propertySchema } from "../../schema/Schema";
 import modalType from "../../constant/ModalType";
-import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "../../axiosClient";
 import endpoints from "../../endpoints";
 import useMutationManager from "../../hooks/useMutationManager";
+import bookingStatus from "../../constant/BookingStatus";
+import GroupButton from "../../components/GroupButton";
 
 export default function Index(){
 
-    const navigate = useNavigate();
+    const [query, setQuery] = useState({
+        page: 1,
+        perPage: 10,
+        filter: {
+            status: 'pending'
+        }
+    });
 
-    const [selectedProperty,setSelectedProperty] = useState(null);
+    const [selectedProperty, setSelectedProperty] = useState(null);
 
     const [modalState, setModalState] = useState({
         isOpen: false,
@@ -81,8 +88,8 @@ export default function Index(){
     }
 
     const { data: bookings } = useQuery({
-        queryKey: ['bookingsData'],
-        queryFn: () => fetchBookings()
+        queryKey: ['bookingsData', query],
+        queryFn: () => fetchBookings({...query})
     })
 
     const { data: properties } = useQuery({
@@ -98,6 +105,16 @@ export default function Index(){
 
     const defaultCreationValue =  useMemo(()=> ({roomId: 0, propertyId: 0}),[])
 
+
+    const defaultSelectedBookingValue = useMemo(()=>{
+        return {
+            status: modalState?.selected?.bookings?.status
+        }
+        
+    },[modalState])
+
+        console.log('selected property: ', defaultSelectedBookingValue)
+
     return <>
         <section className="p-6">
             <div className="p-5 border border-gray-300 bg-white rounded-xl">
@@ -105,14 +122,54 @@ export default function Index(){
             <section className="mb-2">
                 <h2 className="text-lg fw-bold">Bookings</h2>
 
-                <Button 
-                    title="New Booking"  
-                    onclick={()=> setModalState({
-                        isOpen: true,
-                        type: modalType.add
-                    })} 
-                    Icon={PlusCircle}
-                />
+                <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] items-center justify-between gap-2">
+
+                    <div>
+                        <Button 
+                            title="New Booking"  
+                            onclick={()=> setModalState({
+                                isOpen: true,
+                                type: modalType.add
+                            })} 
+                            Icon={PlusCircle}
+                        />
+                    </div>
+
+                        <GroupButton 
+                            initialSelected={query.filter.status}
+                            onClick={({key})=> setQuery(prev => ({...prev, filter: {...prev.filter,  status: key}}))}
+                            buttons={[
+                               {
+                                    title: 'Pending',
+                                    key: "pending"
+                                },
+                                {
+                                    title: 'Confirmed',
+                                    key: "confirmed"
+                                },
+                                {
+                                    title: 'Cancelled',
+                                    key: "cancelled"
+                                },
+                                {
+                                    title: 'For Check-in',
+                                    key: "for_checkin"
+                                },
+                                {
+                                    title: 'For Checkout',
+                                    key: "for_checkout"
+                                },
+                                {
+                                    title: 'Checked In',
+                                    key: "checked_in"
+                                },
+                                {
+                                    title: 'Checked Out',
+                                    key: "checkout"
+                                }
+                            ]}
+                        />
+                </div>
 
             </section>
 
@@ -231,6 +288,14 @@ export default function Index(){
                             </ SelectionField>
                         </FieldLabel>
 
+                        <FieldLabel className="mb-5" label="Status" fieldName="status">
+                            <SelectionField name="status" className="border w-full border-gray-300 rounded outline-none p-2 capitalize">
+                                {bookingStatus.map(status => (
+                                    <option className="capitalize" value={status.key}>{status.title}</option>
+                                ))}
+                            </ SelectionField>
+                        </FieldLabel>
+
                         <section className="flex justify-end items-center gap-2">
                             <Button additionlClass="text-indigo-500!"  type="submit" title="Confirm"/>
                             <Button onclick={handleOnCloseModalState} title="Cancel"/>
@@ -265,10 +330,15 @@ export default function Index(){
                 closeModal={() => handleOnCloseModalState()} 
             >
 
-                <ReactHookForm onSubmit={handleOnPatchProperties} defaultValues={modalState.selected} schema={propertySchema} shouldClear={!modalState.isOpen}>
+                <ReactHookForm onSubmit={handleOnPatchProperties} defaultValues={defaultSelectedBookingValue} schema={bookingSchema} shouldClear={!modalState.isOpen}>
                     <section className="w-[500px] p-2">
-                        <FieldLabel className="mb-5" label="Title" fieldName="title">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="title" />
+
+                        <FieldLabel className="mb-5" label="Status" fieldName="status">
+                            <SelectionField name="status" className="border w-full border-gray-300 rounded outline-none p-2 capitalize">
+                                {bookingStatus.map(status => (
+                                    <option className="capitalize" value={status.key}>{status.title}</option>
+                                ))}
+                            </ SelectionField>
                         </FieldLabel>
 
                         <section className="flex justify-end items-center gap-2">
