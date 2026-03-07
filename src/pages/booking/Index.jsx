@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import Table from "../../components/Table";
-import {  AlertTriangle, PlusCircle, Pencil, Trash, Eye } from '@boxicons/react';
+import {  AlertTriangle, PlusCircle, Pencil, Trash, Eye, Link} from '@boxicons/react';
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import ReactHookForm, { FieldLabel, InputField, SelectionField } from "../../components/ReactHookForm";
@@ -31,19 +31,14 @@ export default function Index(){
         type: modalType.none
     });
 
-    const { mutate: propertyMutation } = useMutationManager({ 
-        mutationFn: (data) => axiosClient.post(endpoints.properties, data),
-        invalidateQueryKeys: ['propertiesData'],
+    const { mutate: bookingMutation } = useMutationManager({ 
+        mutationFn: (data) => axiosClient.post(endpoints.bookings, data),
+        invalidateQueryKeys: ['bookingsData'],
     })
 
-    const { mutate: patchPropertyMutation } = useMutationManager({ 
-        mutationFn: (data) => axiosClient.patch(`${endpoints.properties}/${data?.id}`, data),
-        invalidateQueryKeys: ['propertiesData'],
-    })
-
-    const { mutate: deletePropertyMutation } = useMutationManager({ 
-        mutationFn: (data) => axiosClient.delete(`${endpoints.properties}/${data?.id}`, data),
-        invalidateQueryKeys: ['propertiesData'],
+    const { mutate: patchBookingMutation } = useMutationManager({ 
+        mutationFn: (data) => axiosClient.patch(`${endpoints.bookings}/${data?.id}`, data),
+        invalidateQueryKeys: ['bookingsData'],
     })
 
     const handleOnCloseModalState = ()=>{
@@ -72,18 +67,14 @@ export default function Index(){
             .then(res => res.data);
     }
 
-    const handleOnSubmitProperties = (formData)=>{
-        propertyMutation({...formData});
+    
+    const handleOnSubmitBooking = (formData)=>{
+        bookingMutation({...formData});
         handleOnCloseModalState();
     }
 
-    const handleOnPatchProperties = (formData)=>{
-        patchPropertyMutation({...formData, id: modalState?.selected?.id});
-        handleOnCloseModalState();
-    }
-
-    const handleOnDeleteProperties = ()=>{
-        deletePropertyMutation({ id: modalState?.selected?.id});
+    const handleOnPatchBooking = (formData)=>{
+        patchBookingMutation({...formData, id: modalState?.selected?.bookings?.id});
         handleOnCloseModalState();
     }
 
@@ -103,8 +94,7 @@ export default function Index(){
         enabled:  selectedProperty != null
     })
 
-    const defaultCreationValue =  useMemo(()=> ({roomId: 0, propertyId: 0}),[])
-
+    const defaultCreationValue =  useMemo(()=> ({roomId: 0, propertyId: 0, status: 'pending'}),[])
 
     const defaultSelectedBookingValue = useMemo(()=>{
         return {
@@ -113,7 +103,32 @@ export default function Index(){
         
     },[modalState])
 
-        console.log('selected property: ', defaultSelectedBookingValue)
+    const allowedActions =  useMemo(()=>{
+
+        const getAllowedStatus = (allowed = []) =>{
+            return bookingStatus.filter(status => allowed.includes(status.key))
+        }
+
+        switch(query.filter.status){
+            case 'pending':
+                return getAllowedStatus(['confirmed','cancelled', 'pending'])
+            case 'confirmed':
+                return getAllowedStatus(['confirmed','for_checkin', 'cancelled'])
+            case 'cancelled':
+                return getAllowedStatus(['cancelled'])
+            case 'for_checkin':
+                return getAllowedStatus(['for_checkin','checked_in','cancelled'])
+            case 'for_checkout':
+                return getAllowedStatus(['for_checkout','checkout'])
+            case 'checked_in':
+                return getAllowedStatus(['checked_in','for_checkout'])
+            case 'checkout':
+                return getAllowedStatus(['checkout'])
+            default: 
+                return []
+        }
+
+    }, [query.filter.status])
 
     return <>
         <section className="p-6">
@@ -148,25 +163,25 @@ export default function Index(){
                                     key: "confirmed"
                                 },
                                 {
-                                    title: 'Cancelled',
-                                    key: "cancelled"
-                                },
-                                {
                                     title: 'For Check-in',
                                     key: "for_checkin"
-                                },
-                                {
-                                    title: 'For Checkout',
-                                    key: "for_checkout"
                                 },
                                 {
                                     title: 'Checked In',
                                     key: "checked_in"
                                 },
                                 {
+                                    title: 'For Checkout',
+                                    key: "for_checkout"
+                                },
+                                {
                                     title: 'Checked Out',
                                     key: "checkout"
-                                }
+                                },
+                                 {
+                                    title: 'Cancelled',
+                                    key: "cancelled"
+                                },
                             ]}
                         />
                 </div>
@@ -186,8 +201,30 @@ export default function Index(){
                     }
                 },
                 {
-                    key: 'customers.name',
+                    key: 'pointPerson.name',
                     title: 'Name',
+                    style: 'w-1/10 text-center',
+                },
+                {
+                    key: 'totalGuest',
+                    title: 'Guest',
+                    style: 'w-1/10 text-center',
+                },
+                {
+                    key: 'customers.name',
+                    title: 'Total',
+                    style: 'w-1/10 text-center',
+                    mapper: ({index})=> ('500.00')
+                },
+                {
+                    key: 'customers.name',
+                    title: 'Payment',
+                    style: 'w-1/10 text-center',
+                    mapper: ({index})=> ('0.00')
+                },
+                {
+                    key: 'rooms.title',
+                    title: 'Room',
                     style: 'w-1/10 text-center',
                 },
                 {
@@ -197,12 +234,12 @@ export default function Index(){
                 },
                  {
                     key: 'bookings.timeIn',
-                    title: 'Time out',
+                    title: 'In',
                     style: 'w-2/10 text-center',
                 },
                 {
                     key: 'bookings.timeOut',
-                    title: 'Time In',
+                    title: 'Out',
                     style: 'w-2/10 text-center',
                 },
                 {
@@ -214,25 +251,28 @@ export default function Index(){
                         return (
                             <div className="flex items-center justify-center">
                                 <div className="flex gap-2 p-1">
-                                    
+
+                                    {content?.bookings.status === 'pending' && (
+                                        <Button onclick={()=> setModalState({
+                                            isOpen: true,
+                                            selected: content,
+                                            type: modalType.view
+                                        })} Icon={Link}/>
+                                    )}
+
                                     <Button onclick={()=> setModalState({
                                         isOpen: true,
                                         selected: content,
                                         type: modalType.view
                                     })} Icon={Eye}/>
 
-
-                                    <Button onclick={()=> setModalState({
-                                        isOpen: true,
-                                        selected: content,
-                                        type: modalType.edit
-                                    })} Icon={Pencil}/>
-
-                                    <Button onclick={()=> setModalState({
-                                        isOpen: true,
-                                        selected: content,
-                                        type: modalType.delete
-                                    })} Icon={Trash}/>
+                                    {content?.bookings.status !== 'cancelled' && (
+                                        <Button onclick={()=> setModalState({
+                                            isOpen: true,
+                                            selected: content,
+                                            type: modalType.edit
+                                       })} Icon={Pencil}/>
+                                    )}
                                 </div>
                             </div>
                         )
@@ -243,31 +283,15 @@ export default function Index(){
 
             <Modal title="New Booking" isOpen={modalState.isOpen && modalState.type === modalType.add } 
                 closeModal={() => handleOnCloseModalState()} >
-                <ReactHookForm defaultValues={defaultCreationValue} watch={[selectedProperty]} listener={({resetField})=> resetField('roomId')} onSubmit={handleOnSubmitProperties} schema={bookingSchema} shouldClear={!modalState.isOpen}>
+                <ReactHookForm defaultValues={defaultCreationValue} watch={[selectedProperty]} listener={({resetField})=> resetField('roomId')} onSubmit={handleOnSubmitBooking} schema={bookingSchema} shouldClear={!modalState.isOpen}>
                     <section className="w-[500px] p-2">
                         
-                        <FieldLabel className="mb-5" label="Name" fieldName="name">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="name" />
+                        <FieldLabel className="mb-5" label="From" fieldName="timeIn">
+                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="timeIn" type="datetime-local" />
                         </FieldLabel>
 
-                        <FieldLabel className="mb-5" label="Email" fieldName="email">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="email" />
-                        </FieldLabel>
-
-                        <FieldLabel className="mb-5" label="Contact" fieldName="contact">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="contact" />
-                        </FieldLabel>
-
-                        <FieldLabel className="mb-5" label="Age" fieldName="age">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="age" />
-                        </FieldLabel>
-
-                        <FieldLabel className="mb-5" label="From" fieldName="from">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="from" type="datetime-local" />
-                        </FieldLabel>
-
-                        <FieldLabel className="mb-5" label="To" fieldName="to">
-                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="to" type="datetime-local" />
+                        <FieldLabel className="mb-5" label="To" fieldName="timeOut">
+                            <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="timeOut" type="datetime-local" />
                         </FieldLabel>
 
                         <FieldLabel className="mb-5" label="Property" fieldName="propertyId">
@@ -288,13 +312,7 @@ export default function Index(){
                             </ SelectionField>
                         </FieldLabel>
 
-                        <FieldLabel className="mb-5" label="Status" fieldName="status">
-                            <SelectionField name="status" className="border w-full border-gray-300 rounded outline-none p-2 capitalize">
-                                {bookingStatus.map(status => (
-                                    <option className="capitalize" value={status.key}>{status.title}</option>
-                                ))}
-                            </ SelectionField>
-                        </FieldLabel>
+                        <InputField  className="border w-full border-gray-300 rounded outline-none p-2" name="status" type="hidden" />
 
                         <section className="flex justify-end items-center gap-2">
                             <Button additionlClass="text-indigo-500!"  type="submit" title="Confirm"/>
@@ -330,12 +348,12 @@ export default function Index(){
                 closeModal={() => handleOnCloseModalState()} 
             >
 
-                <ReactHookForm onSubmit={handleOnPatchProperties} defaultValues={defaultSelectedBookingValue} schema={bookingSchema} shouldClear={!modalState.isOpen}>
+                <ReactHookForm onSubmit={handleOnPatchBooking} defaultValues={defaultSelectedBookingValue} schema={bookingSchema.pick(['status'])} shouldClear={!modalState.isOpen}>
                     <section className="w-[500px] p-2">
 
                         <FieldLabel className="mb-5" label="Status" fieldName="status">
                             <SelectionField name="status" className="border w-full border-gray-300 rounded outline-none p-2 capitalize">
-                                {bookingStatus.map(status => (
+                                {allowedActions.map(status => (
                                     <option className="capitalize" value={status.key}>{status.title}</option>
                                 ))}
                             </ SelectionField>
@@ -343,37 +361,6 @@ export default function Index(){
 
                         <section className="flex justify-end items-center gap-2">
                             <Button additionlClass="text-indigo-500!"  type="submit" title="Confirm"/>
-                            <Button onclick={handleOnCloseModalState} title="Cancel"/>
-                        </section>
-                    </section>
-                </ReactHookForm>
-            </Modal>
-
-             <Modal 
-                title="Delete Booking" 
-                isOpen={modalState.isOpen && modalState.type === modalType.delete } 
-                closeModal={() => handleOnDeleteProperties()} 
-            >
-
-                <ReactHookForm defaultValues={modalState.selected} schema={deleteSchema} onSubmit={handleOnDeleteProperties}  shouldClear={!modalState.isOpen}>
-                    <section className="w-[500px] p-2">
-
-                        <InputField type="hidden" className="border w-full border-gray-300 rounded outline-none p-2" name="id" />
-
-                        <div className="mb-5 flex items-center gap-2">
-                            <span className="text-red-500">
-                                <AlertTriangle size="md" />
-                            </span>
-                            <p>
-                                Are you sure you want to delete property 
-                                <span className="ms-1 text-red-500">
-                                  {modalState?.selected?.title}
-                                </span>  ?
-                            </p>
-                        </div>
-
-                        <section className="flex justify-end items-center gap-2">
-                            <Button additionlClass="text-red-500!"  type="submit" title="Confirm"/>
                             <Button onclick={handleOnCloseModalState} title="Cancel"/>
                         </section>
                     </section>

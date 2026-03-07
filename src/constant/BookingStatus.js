@@ -28,7 +28,6 @@ const bookingStatus = [
 		title: 'Checked Out',
 		key: "checkout"
 	}
-
 ];
 
 export default bookingStatus;
