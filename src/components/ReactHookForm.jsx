@@ -26,7 +26,8 @@ export function InputField({
   readOnly,
   icon,
   iconStyle,
-  accept
+  accept,
+  options
 }) {
   const { errors, register } = useContext(ReactHookFormContext);
 
@@ -48,10 +49,10 @@ export function InputField({
           type={type}
           placeholder={placeHolder}
           value={value}
-          
           defaultValue={defaultValue}
           style={style}
           accept={accept}
+          {...options}
           {...register(name, {onChange: onChange})}
         />
         {icon && 

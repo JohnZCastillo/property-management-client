@@ -1,13 +1,13 @@
 import * as yup from 'yup';
 
-amount
-
 export const roomSchema = yup.object({
   title: yup
     .string()
     .trim()
     .required('Name is required')
-    .max(50, 'Name too long')
+    .max(50, 'Name too long'),
+  amount: yup.number().required('Amount is required'),
+  status:  yup.string().trim().required('Status is required'),
 });
 
 export const propertySchema = yup.object({

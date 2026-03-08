@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
 const useMutationManager = ({mutationFn, invalidateQueryKeys = []})=>{
@@ -13,7 +14,14 @@ const useMutationManager = ({mutationFn, invalidateQueryKeys = []})=>{
             toast.promise(mutationPromise, {
                 loading: 'Loading',
                 success: 'Success',
-                error: 'Something went wrong, please try agin',
+                error: (error) => {
+                    
+                    if(error instanceof AxiosError && error.status === 400){
+                        return error?.response?.data?.message;
+                    }
+
+                    return 'Something went wrong, please try agin';
+                },
             })
 
             return mutationPromise;

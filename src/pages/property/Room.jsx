@@ -4,7 +4,7 @@ import {  AlertTriangle, PlusCircle, Pencil, Trash, Eye } from '@boxicons/react'
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import ReactHookForm, { FieldLabel, InputField, SelectionField } from "../../components/ReactHookForm";
-import { deleteSchema, propertySchema } from "../../schema/Schema";
+import { deleteSchema, roomSchema } from "../../schema/Schema";
 import modalType from "../../constant/ModalType";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -109,6 +109,11 @@ export default function Room(){
                     style: 'w-3/10 text-center',
                 },
                 {
+                    key: 'amount',
+                    title: 'Pricing',
+                    style: 'w-3/10 text-center',
+                },
+                {
                     key: 'status',
                     title: 'Status',
                     style: 'w-3/10 text-center',
@@ -153,12 +158,15 @@ export default function Room(){
 
             <Modal title="New Room" isOpen={modalState.isOpen && modalState.type === modalType.add } 
                 closeModal={() => handleOnCloseModalState()} >
-                <ReactHookForm onSubmit={handleOnSubmitRoom} schema={propertySchema} shouldClear={!modalState.isOpen}>
+                <ReactHookForm onSubmit={handleOnSubmitRoom} schema={roomSchema} shouldClear={!modalState.isOpen}>
                     <section className="w-[500px] p-2">
                         <FieldLabel className="mb-5" label="Title" fieldName="title">
                             <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="title" />
                         </FieldLabel>
 
+                        <FieldLabel className="mb-5" label="Pricing" fieldName="amount">
+                            <InputField options={{step: 0.1}} type="number" className="border w-full border-gray-300 rounded outline-none p-2" name="amount" />
+                        </FieldLabel>
                         
                         <FieldLabel className="mb-5" label="Status" fieldName="status">
                             <SelectionField name="status" className="border w-full border-gray-300 rounded outline-none p-2 capitalize">
@@ -182,10 +190,14 @@ export default function Room(){
                 closeModal={() => handleOnCloseModalState()} 
             >
 
-                <ReactHookForm defaultValues={modalState.selected} schema={propertySchema} shouldClear={!modalState.isOpen}>
+                <ReactHookForm defaultValues={modalState.selected} schema={roomSchema} shouldClear={!modalState.isOpen}>
                     <section className="w-[500px] p-2">
                         <FieldLabel className="mb-5" label="Title" fieldName="title">
                             <InputField readOnly={true} className="border w-full border-gray-300 rounded outline-none p-2" name="title" />
+                        </FieldLabel>
+
+                        <FieldLabel className="mb-5" label="Pricing" fieldName="amount">
+                            <InputField options={{step: 0.1}} type="number" className="border w-full border-gray-300 rounded outline-none p-2" name="amount" />
                         </FieldLabel>
 
                         <FieldLabel className="mb-5" label="Status" fieldName="status">
@@ -206,10 +218,14 @@ export default function Room(){
                 closeModal={() => handleOnCloseModalState()} 
             >
 
-                <ReactHookForm onSubmit={handleOnPatchRoom} defaultValues={modalState.selected} schema={propertySchema} shouldClear={!modalState.isOpen}>
+                <ReactHookForm onSubmit={handleOnPatchRoom} defaultValues={modalState.selected} schema={roomSchema} shouldClear={!modalState.isOpen}>
                     <section className="w-[500px] p-2">
                         <FieldLabel className="mb-5" label="Title" fieldName="title">
                             <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="title" />
+                        </FieldLabel>
+
+                        <FieldLabel className="mb-5" label="Pricing" fieldName="amount">
+                            <InputField options={{step: 0.1}} type="number" className="border w-full border-gray-300 rounded outline-none p-2" name="amount" />
                         </FieldLabel>
 
                         <FieldLabel className="mb-5" label="Status" fieldName="status">

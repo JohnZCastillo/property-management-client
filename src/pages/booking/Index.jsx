@@ -211,10 +211,10 @@ export default function Index(){
                     style: 'w-1/10 text-center',
                 },
                 {
-                    key: 'customers.name',
-                    title: 'Total',
+                    key: 'bookings.amount',
+                    title: 'Fee',
                     style: 'w-1/10 text-center',
-                    mapper: ({index})=> ('500.00')
+                    // mapper: ({index})=> ('500.00')
                 },
                 {
                     key: 'customers.name',
