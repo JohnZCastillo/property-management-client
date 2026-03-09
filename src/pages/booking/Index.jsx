@@ -12,6 +12,10 @@ import endpoints from "../../endpoints";
 import useMutationManager from "../../hooks/useMutationManager";
 import bookingStatus from "../../constant/BookingStatus";
 import GroupButton from "../../components/GroupButton";
+import currencyFormatter from "../../utils/currencyFormatter";
+import dateFormatter from "../../utils/dateFormatter";
+
+
 
 export default function Index(){
 
@@ -214,13 +218,17 @@ export default function Index(){
                     key: 'bookings.amount',
                     title: 'Fee',
                     style: 'w-1/10 text-center',
-                    // mapper: ({index})=> ('500.00')
+                    mapper: ({value})=> {
+                        return currencyFormatter(value);
+                    }
                 },
                 {
                     key: 'customers.name',
                     title: 'Payment',
                     style: 'w-1/10 text-center',
-                    mapper: ({index})=> ('0.00')
+                    mapper: ({value})=> {
+                        return currencyFormatter(value);
+                    }
                 },
                 {
                     key: 'rooms.title',
@@ -232,15 +240,20 @@ export default function Index(){
                     title: 'Status',
                     style: 'w-1/10 text-center',
                 },
-                 {
-                    key: 'bookings.timeIn',
-                    title: 'In',
-                    style: 'w-2/10 text-center',
-                },
                 {
-                    key: 'bookings.timeOut',
-                    title: 'Out',
-                    style: 'w-2/10 text-center',
+                    key: 'time',
+                    title: 'Time',
+                    style: 'w-1/10 text-center',
+                     mapper: ({content})=> {
+                        return (
+                            <div className="grid grid-cols-[50px_auto] gap-2 p-1">
+                                    <p className="text-start border-r border-gray-300">In</p>
+                                    <p className="text-nowrap">{dateFormatter(content?.bookings?.timeIn)}</p>
+                                    <p className="text-start border-r border-gray-300">Out</p>
+                                    <p className="text-nowrap">{dateFormatter(content?.bookings?.timeOut)}</p>
+                            </div>
+                        );
+                    }
                 },
                 {
                     key: 'Action',

@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@boxicons/react": "^1.0.3",
+    "@date-fns/tz": "^1.4.1",
     "@hookform/resolvers": "^5.2.2",
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.90.9",
     "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
     "react": "^19.2.0",
     "react-charts": "^3.0.0-beta.57",
     "react-dom": "^19.2.0",
