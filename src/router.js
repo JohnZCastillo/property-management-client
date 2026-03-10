@@ -13,6 +13,8 @@ import JobOrder from  './pages/job-order/Index';
 
 import Booking from  './pages/booking/Index';
 
+import FillUp from  './pages/Fillup';
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: 'login',
         Component: Login
+      },
+      {
+        path: 'booking-fill-up',
+        Component: FillUp
       }
     ]
   },

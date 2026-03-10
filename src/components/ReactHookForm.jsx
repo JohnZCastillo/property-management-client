@@ -2,7 +2,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { createContext, useContext, useEffect, useState } from "react";
 
-const ReactHookFormContext = createContext();
+export const ReactHookFormContext = createContext();
+
 const FieldLabelContext = createContext();
 
 function isFieldRequired(schema, field) {
@@ -190,6 +191,7 @@ export default function ReactHookForm({
     handleSubmit,
     reset,
     resetField,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: defaultValues,
@@ -224,6 +226,7 @@ export default function ReactHookForm({
           register: register,
           errors: errors,
           schema: schema,
+          getValues
         }}
       >
         {children}
