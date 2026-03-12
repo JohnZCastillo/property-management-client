@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import Table from "../../components/Table";
-import {  AlertTriangle, PlusCircle, Pencil, Trash, Eye, Link} from '@boxicons/react';
+import { PlusCircle, Pencil, Trash, Eye, Link} from '@boxicons/react';
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import ReactHookForm, { FieldLabel, InputField, SelectionField } from "../../components/ReactHookForm";
-import { bookingSchema, deleteSchema, propertySchema } from "../../schema/Schema";
+import { bookingSchema, deleteSchema, guestFillupSchema, propertySchema } from "../../schema/Schema";
 import modalType from "../../constant/ModalType";
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "../../axiosClient";
@@ -14,8 +14,7 @@ import bookingStatus from "../../constant/BookingStatus";
 import GroupButton from "../../components/GroupButton";
 import currencyFormatter from "../../utils/currencyFormatter";
 import dateFormatter from "../../utils/dateFormatter";
-
-
+import hashObject from 'hash-object/async';
 
 export default function Index(){
 
@@ -71,10 +70,23 @@ export default function Index(){
             .then(res => res.data);
     }
 
-    
     const handleOnSubmitBooking = (formData)=>{
         bookingMutation({...formData});
         handleOnCloseModalState();
+    }
+
+    const handleOnGenerateGuest = async ({companyId, bookingId, count})=>{
+
+        console.log('token: ', {companyId, bookingId, count});
+
+        const token = await hashObject({companyId, bookingId, count});
+
+        const url = new URL(`/booking-fill-up/${companyId}/${bookingId}`,'http://localhost:5173');
+
+        url.searchParams.append('guest', count);
+        url.searchParams.append('token', token);
+
+        setModalState(prev => ({...prev, selected: {...prev.selected, link: url.toString()}}))
     }
 
     const handleOnPatchBooking = (formData)=>{
@@ -134,6 +146,7 @@ export default function Index(){
 
     }, [query.filter.status])
 
+    console.log(modalState.selected)
     return <>
         <section className="p-6">
             <div className="p-5 border border-gray-300 bg-white rounded-xl">
@@ -340,17 +353,38 @@ export default function Index(){
                 isOpen={modalState.isOpen && modalState.type === modalType.view } 
                 closeModal={() => handleOnCloseModalState()} 
             >
+                <ReactHookForm 
+                    defaultValues={{
+                        bookingId: modalState?.selected?.bookings.id, 
+                        companyId: modalState?.selected?.bookings?.companyId,  
+                        count: 2,
+                        link:  modalState?.selected?.link
+                    }}  
+                    onSubmit={handleOnGenerateGuest} 
+                    schema={guestFillupSchema} 
+                    shouldClear={!modalState.isOpen}
+                >
+                
+                    <FieldLabel className="mb-5" label="Generated Link" fieldName="link">
+                        <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="link"   />
+                    </FieldLabel>
 
-                <ReactHookForm defaultValues={modalState.selected} schema={propertySchema} shouldClear={!modalState.isOpen}>
-                    <section className="w-[500px] p-2">
-                        <FieldLabel className="mb-5" label="Title" fieldName="title">
-                            <InputField readOnly={true} className="border w-full border-gray-300 rounded outline-none p-2" name="title" />
-                        </FieldLabel>
+                   <FieldLabel className="mb-5" label="Company Id" fieldName="count">
+                        <InputField readOnly className="border w-full border-gray-300 rounded outline-none p-2" name="companyId" type="number"  />
+                    </FieldLabel>
 
-                        <section className="flex justify-end items-center gap-2">
-                            <Button additionlClass="text-indigo-500!"  type="submit" title="Confirm"/>
-                            <Button onclick={handleOnCloseModalState} title="Cancel"/>
-                        </section>
+                    <FieldLabel className="mb-5" label="Booking Id" fieldName="count">
+                        <InputField readOnly className="border w-full border-gray-300 rounded outline-none p-2" name="bookingId" type="number"  />
+                    </FieldLabel>
+
+
+                    <FieldLabel className="mb-5" label="Guest Count" fieldName="count">
+                        <InputField className="border w-full border-gray-300 rounded outline-none p-2" name="count" type="number"  />
+                    </FieldLabel>
+
+                     <section className="flex justify-end items-center gap-2">
+                            <Button additionlClass="text-indigo-500!"  type="submit" title="Generate Form"/>
+                            <Button onclick={handleOnCloseModalState} title="Close"/>
                     </section>
                 </ReactHookForm>
             </Modal>

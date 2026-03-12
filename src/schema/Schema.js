@@ -18,6 +18,13 @@ export const propertySchema = yup.object({
     .max(50, 'Name too long')
 });
 
+export const guestFillupSchema = yup.object({
+    count: yup.number().integer().min(1).max(10).required('Guest Count is required'),
+    bookingId: yup.number().integer().required('Booking id is required'),
+    companyId: yup.number().integer().required('Company id is required'),
+    link: yup.string().optional(),
+});
+
 export const guestSchema = yup.object({
   name: yup.string().trim().required('Name is required'),
   email: yup.string().trim().email('Invalid email format').required('Email is required'),

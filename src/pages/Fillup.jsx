@@ -2,7 +2,9 @@ import { useContext, useEffect, useMemo, useState } from "react"
 import ReactHookForm, { FieldLabel, InputField, ReactHookFormContext } from "../components/ReactHookForm";
 import { guestSchema } from "../schema/Schema";
 import { v4 as uuidv4 } from 'uuid';
-import { useSearchParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
+import axiosClient from "../axiosClient";
+import hashObject from 'hash-object/async';
 
 const GuestDetails = ({children, defaultValues, guest, totalGuest, onSubmit})=>{
 
@@ -68,23 +70,42 @@ const PrevButton = ({onSubmit})=>{
 
 export default function Fillup(){
     
+    const {bookingId, companyId} = useParams();
+    const [searchParams] = useSearchParams();
+
+    const [isValidToken, setIsValidToken ] = useState(false)
+
+    useEffect(()=>{
+        const check = async ()=>{
+
+            const generatedToken = await hashObject({ 
+                companyId: parseInt(companyId), 
+                bookingId: parseInt(bookingId), 
+                count: parseInt(searchParams.get('guest'))
+            });
+
+            const token = searchParams.get('token');
+                
+            setIsValidToken(token === generatedToken)
+        }
+
+        check();
+
+    },[bookingId, companyId, searchParams])
+    
     const [guest, setGuest] = useState({
+        submit: false,
         count: 2,
         phase: 1,
         details: []
     });
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
     useEffect(()=>{
 
-        const count = parseInt( searchParams.get('guest_count') ?? '2');
+        const count = parseInt( searchParams.get('guest') ?? '2');
 
         setGuest(prev => ({...prev, count:  count}))
     },[])
-
-
-    console.log(guest);
 
     const handleOnClickPrev = (details)=>{
         
@@ -112,6 +133,7 @@ export default function Fillup(){
         if(isLastPhase){
              setGuest(prev => ({
                 ...prev, 
+                submit: true,
                 details: isExisting  
                     ? prev.details.map(info => ( info.id === details.id ? details : info)) 
                     : [...prev.details, details]
@@ -144,6 +166,24 @@ export default function Fillup(){
         return ids;
 
     },[guest.count])
+    
+    useEffect(()=>{
+        if(guest.submit){
+            handleFormSubmission();
+        }   
+    },[guest])
+
+    const handleFormSubmission = () => {
+        axiosClient.post(`/public/bookings/${companyId}/${bookingId}`, {
+            guests: guest.details
+        })
+    }
+
+    if(!isValidToken){
+        return <>
+            <p>Invalid Form</p>
+        </>
+    }
     
     return <>
         <div className="flex items-center justify-center h-screen p-2">

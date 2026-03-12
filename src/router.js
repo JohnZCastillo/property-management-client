@@ -29,7 +29,7 @@ const router = createBrowserRouter([
         Component: Login
       },
       {
-        path: 'booking-fill-up',
+        path: 'booking-fill-up/:companyId/:bookingId',
         Component: FillUp
       }
     ]
